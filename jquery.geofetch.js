@@ -17,8 +17,16 @@
 					callback: function(data) {}
 				};
 				var foptions = $.extend(default_flickr_options, flickr_options);
-				// TODO:: add support for bbox queries
-				var url = "http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key="+options.flickr_api_key+"&lat="+foptions.lat+"&lon="+foptions.lng+"&accuracy=16&format=json&extras=geo&jsoncallback=?";
+				var url = "http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key="+options.flickr_api_key+"&accuracy=16&format=json&extras=geo&jsoncallback=?";
+				
+				if ('bbox' in foptions) {
+				  url += "&bbox="+foptions.bbox;
+				} else if ('lat' in foptions) {
+  				url += "&lat="+foptions.lat+"&lon="+foptions.lng;
+  			} else {
+  			  console.error("You must pass in either a BBOX or a LAT/LON");
+  			}
+  			
 				$.getJSON(url, function(data) {
 					var results = [];
 					$.each(data.photos.photo, function(i, photo) {

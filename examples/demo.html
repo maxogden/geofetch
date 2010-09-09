@@ -1,24 +1,72 @@
 <html>
 <head>
 	<title>jQuery Geofetch Example</title>
-	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
+  <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+  <script type="text/javascript">
+    google.load("jquery", '1.4');
+    google.load("maps", "2.x");
+  </script>
 	<script type="text/javascript" src="../jquery.geofetch.js"></script>
 	<script type="text/javascript">
-		var geofetch = $.geofetch({flickr_api_key: '<YOUR FLICKR API KEY HERE>'});
-		geofetch.flickr({
-			lng: -122.3122, lat: 47.642289,
-			callback: function(data) {
-				var list = $('ul#results');
-				$.each(data, function(i, item) {
-					list.append('<li>'+item.imageSrc+item.title+'</li>');
-				});
-			}
-		});
+    var map;
+    $(function(){
+      var options = {
+        flickr_api_key: 'FLICKR_API_KEY_HERE'
+      };
+  		
+  		function bbox(googleMap) {
+        var bounds = googleMap.getBounds();
+        return bounds.getSouthWest().x + "," + bounds.getSouthWest().y + "," +
+               bounds.getNorthEast().x + "," + bounds.getNorthEast().y;
+      }
+      
+      function fetchFlickr() {
+        var geofetch = $.geofetch(options);
+    		geofetch.flickr({
+          bbox: bbox(map),
+          // lat: 45.51330163230602,
+          // lng: -122.67764210700989,
+    			callback: function(data) {
+    				var list = $('ul#results');
+    				list.html('');
+    				$.each(data, function(i, item) {
+    					list.append('<li>'+item.imageSrc+item.title+'</li>');
+    				});
+    			}
+    		});
+      }
+      
+      map = new GMap2($("#map").get(0));
+
+      var portlandOR = new GLatLng(45.51330163230602, -122.67764210700989);
+      map.setCenter(portlandOR, 12);
+
+      GEvent.addListener(map, "moveend", function(){
+        fetchFlickr();
+      });
+
+      fetchFlickr();
+    });
 	</script>
+	<style type="text/css">
+    #map {
+      float: left;
+      width: 80%;
+      height: 400px;
+    }
+    #results {
+      float: left;
+      margin: 0px;
+      padding: 0px;
+      width: 20%;
+      height: 400px;
+    }
+  </style>
 </head>
 <body>
 <h2>jQuery Geofetch Example</h2>
 <p>Make sure to set your flickr_api_key in this example.</p>
 <ul id="results"></ul>
+<div id="map"></div>
 </body>
 </html>
